@@ -1,12 +1,7 @@
-import random
-from IPython.display import Audio
+import wave
 from synth import *
 
 FPS = 60
-
-def save_audio(filename, samples):
-    with open(filename, "wb") as f:
-        f.write(Audio(samples, rate=SR).data)
 
 def aosc(freq, vol, decay):
     return [1, get_freq(freq), get_vol(vol), get_decay(decay)]
@@ -97,16 +92,20 @@ preset = [
     rosc(freq=1.6, vol=1, decay=0.1),
 ]
 
-preset_data = [
+preset_seq = [
     (0, make_note(preset, 200, 0.2)),
     (60, make_note(preset, 200, 0))
 ]
 
-data = preset_data
+data = preset_seq
 
 packed = pack(data, 12)
 print(packed)
 
 data = make_params(data, 0)
 samples = play(data, 5)
-save_audio('test.wav', samples)
+with wave.open('test.wav', 'wb') as w:
+    w.setnchannels(1)
+    w.setsampwidth(2)
+    w.setframerate(SR)
+    w.writeframes(b''.join(x.to_bytes(2, 'little', signed=True) for x in samples))
