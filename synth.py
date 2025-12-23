@@ -35,22 +35,21 @@ class SFX:
 
 
 def get_vol(val):
-    return min(round(val * 32768), 65535)
+    return round(val * 32768) & 0xffff
 
 
 def get_decay(sec):
     steps = (sec * SR) / DECAY_SCALE
     k = math.exp(math.log(0.01) / steps)
-    return round(k * 32768)
+    return round(k * 32768) & 0xffff
 
 
 def get_freq(freq):
-    return min(round((TABLE_SIZE * freq * (1 / SR)) * (1 << TABLE_BITS)),
-               65535)
+    return round((TABLE_SIZE * freq * (1 / SR)) * (1 << TABLE_BITS)) & 0xffff
 
 
 def get_ratio(x):
-    return min(round(x * (1 << RATIO_BITS)), 65535)
+    return round(x * (1 << RATIO_BITS)) & 0xffff
 
 
 def sfx_update(sfx, params):
