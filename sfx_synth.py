@@ -8,18 +8,18 @@ AMP_BITS = 15
 RATIO_BITS = 10
 DECAY_BITS = 6
 DECAY_SCALE = 64
-VOICES_NUM = 16
-VOICE_SIZE = 4
-VOICE_ABS = 0
-VOICE_AMP = 1
-VOICE_DECAY = 2
-VOICE_STEP = 3
+OSCS_NUM = 16
+OSC_SIZE = 4
+OSC_ABS = 0
+OSC_AMP = 1
+OSC_DECAY = 2
+OSC_STEP = 3
 
 SINE_TABLE = [int(32767 * math.sin(2 * math.pi * i / TABLE_SIZE))
               for i in range(TABLE_SIZE)]
 
 
-class Voice:
+class Osc:
     def __init__(self):
         self.amp = 0
         self.target_amp = 0
@@ -30,7 +30,7 @@ class Voice:
 
 class SFX:
     def __init__(self):
-        self.voices = [Voice() for _ in range(VOICES_NUM)]
+        self.oscs = [Osc() for _ in range(OSCS_NUM)]
         self.decay_counter = 0
 
 
@@ -55,8 +55,8 @@ def get_ratio(x):
 def sfx_update(sfx, params):
     abs_amp = 0
     abs_step = 0
-    for i in range(VOICES_NUM):
-        v = sfx.voices[i]
+    for i in range(OSCS_NUM):
+        v = sfx.oscs[i]
         is_abs, step, amp, decay = params[i]
         if is_abs:
             abs_amp = amp
@@ -78,7 +78,7 @@ def limit(x, x_min, x_max):
 def sfx_process(sfx):
     acc = 0
     is_decay = (sfx.decay_counter & (DECAY_SCALE - 1)) == 0
-    for v in sfx.voices:
+    for v in sfx.oscs:
         v.amp += (v.target_amp - v.amp) >> DECAY_BITS
         pos = (v.phase >> TABLE_BITS) & (TABLE_SIZE - 1)
         acc += (SINE_TABLE[pos] * v.amp) >> AMP_BITS
